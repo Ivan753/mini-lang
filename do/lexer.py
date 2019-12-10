@@ -22,7 +22,7 @@ class TokenType(Enum):
     NEWLINE = "[\\n]+"
     LPAR = "\\(",
     RPAR = "\\)",
-    ID = "[a-zA-Z_][a-zA-Z0-9_]*"
+    ID = "[g-zG-Z_][a-zA-Z0-9_]*"
     NUMBER = "0|[1-9a-fA-F][0-9a-fA-F]*",
 
 
