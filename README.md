@@ -33,8 +33,11 @@ if x > 1 then print abc; end;
 ## Ресурсы
 
 Лексический анализатор - `lexer.py`
-Грамматические анализатор - `parser.py`
+
+Грамматический анализатор - `parser.py`
+
 Интерпретатор AST - `Parser.eval_statement()` и `Parser.eval()` из `parser.py`
+
 Грамматика языка - `./grammar`
 
 ## Запуск
