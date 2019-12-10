@@ -1,0 +1,14 @@
+print 1a;
+if 1+1 > 0 then
+    print 10*10/5;
+    a := 3;
+    print a+2;
+    a := a * 2;
+
+    if a > 5 then
+        print 100;
+    else
+        print 200;
+    end;
+end;
+b := 23f;
