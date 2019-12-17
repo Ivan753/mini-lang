@@ -27,11 +27,12 @@ class TokenType(Enum):
 
 
 class Token:
-    def __init__(self, type, text, pos, line):
+    def __init__(self, type, text, pos, line, pos_in_line):
         self.type = type
         self.text = text
         self.pos = pos
         self.line = line
+        self.pos_in_line = pos_in_line
 
 
 class Lexer:
@@ -39,6 +40,7 @@ class Lexer:
     def __init__(self, src):
         self.src = src
         self.pos = 0
+        self.pos_in_line = 1
         self.line = 0
         self.tokens = []
 
@@ -59,14 +61,19 @@ class Lexer:
             if result is not None:
                 # пробелы пропускаем
                 if tt is not TokenType.SPACE and tt is not TokenType.NEWLINE:
-                    t = Token(tt, result.group(0), self.pos, self.line)
+                    t = Token(tt, result.group(0), self.pos, self.line, self.pos_in_line)
                     self.tokens.append(t)
                 elif tt == TokenType.NEWLINE:
                     self.line += 1
+                    self.pos_in_line = 1
                 self.pos = result.end() + self.pos
+                self.pos_in_line += result.end()
                 return True
 
-        raise Exception("Неожиданный символ {} в строке {}".format(self.src[self.pos], self.line));
+        raise Exception(
+            "Неожиданный символ {} в строке {} на позиции {}".
+            format(self.src[self.pos], self.line, self.pos_in_line)
+        );
 
     def lex(self):
         while self.nextToken():

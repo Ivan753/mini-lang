@@ -8,8 +8,6 @@ from lexer import Lexer, TokenType
 
 class Parser:
 
-    variables = {}
-
     def __init__(self, tokens):
         self.tokens = tokens
         self.pos = 0
@@ -28,7 +26,7 @@ class Parser:
         while self.match([TokenType.ADD, TokenType.SUB]):
             op = self.tokens[self.pos-1]
             e2 = self.slag()
-            e1 = BimOpNode(op.text, e1, e2)
+            e1 = BinOpNode(op.text, e1, e2)
 
         return e1
 
@@ -37,7 +35,7 @@ class Parser:
         while self.match([TokenType.MORE, TokenType.LESS, TokenType.EMORE, TokenType.ELESS]):
             op = self.tokens[self.pos-1]
             e2 = self.expr()
-            e1 = BimOpNode(op.text, e1, e2)
+            e1 = BinOpNode(op.text, e1, e2)
 
         return e1
 
@@ -74,24 +72,6 @@ class Parser:
 
         return list
 
-    def eval_statement(self, list):
-        for item in list:
-            if type(item) is StatementNode:
-                # print
-                if item.statement.type == TokenType.PRINT:
-                    print(self.eval(item.expr))
-
-                # assign
-                if item.statement.type == TokenType.ID:
-                    self.variables[item.statement.text] = self.eval(item.expr)
-
-                # if
-                if item.statement.type == TokenType.IF:
-                    if self.eval(item.expr):
-                        self.eval_statement(item.s_then)
-                    else:
-                        self.eval_statement(item.s_else)
-
     def mnog(self):
         if self.match([TokenType.LPAR]):
             e = self.expr()
@@ -111,49 +91,29 @@ class Parser:
             op = self.tokens[self.pos-1]
             e2 = self.mnog()
 
-            e1 = BimOpNode(op.text, e1, e2)
+            e1 = BinOpNode(op.text, e1, e2)
 
         return e1
 
-    def eval(self, n):
-        if type(n) is NumberNode:
-            return int(str(n.number), 16)
-        if type(n) is VarNode:
-            if n.var in self.variables:
-                return int(str(self.variables[n.var]), 16)
-            else:
-                return self.runtime_error("Неизвестная переменная " + n.var)
-        if type(n) is BimOpNode:
-            l = self.eval(n.left)
-            r = self.eval(n.right)
-
-            if n.op == '+':
-                return l+r
-            elif n.op == '*':
-                return l*r
-            elif n.op == '-':
-                return l-r
-            elif n.op == '/':
-                return l/r
-            elif n.op == '>':
-                return l>r
-            elif n.op == '<':
-                return l<r
-            elif n.op == '>=':
-                return l>=r
-            elif n.op == '<=':
-                return l<=r
-            elif n.op == '=':
-                return l==r
-
     def require(self, expecteds):
         if not self.match(expecteds):
-            print(expecteds[0])
-            self.error("Ожидалось " + expecteds[0].value)
+
+            if not isinstance(expecteds[0].value, str):
+                value = expecteds[0].value[0]
+            else:
+                value = expecteds[0].value
+            self.error("Ожидалось {}".format(value))
         return self.tokens[self.pos-1]
 
     def error(self, msg):
-        raise Exception("{} в строке {}".format(msg, self.tokens[self.pos].line))
+        print(self.tokens[self.pos-1].text)
+        raise Exception(
+            "{} в строке {} на позиции {}"
+                .format(
+                    msg, self.tokens[self.pos-1].line+1,
+                    len(self.tokens[self.pos-1].text)+self.tokens[self.pos-1].pos_in_line-1
+                )
+            )
 
     def runtime_error(self, msg):
         raise Exception(msg)
@@ -170,7 +130,7 @@ class VarNode:
     def __init__(self, var):
         self.var = var
 
-class BimOpNode:
+class BinOpNode:
     #op
     #left
     #right

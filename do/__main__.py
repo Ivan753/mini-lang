@@ -2,6 +2,7 @@ import sys
 
 from lexer import Lexer
 from parser import Parser
+from executor import Executor
 
 if len(sys.argv) < 2:
     raise Exception("Ожидался файл, содержащий исходный код")
@@ -15,7 +16,6 @@ tokens = l.lex()
 
 parser = Parser(tokens)
 ast = parser.statement()
+executor = Executor()
 
-print("--- Выполнение ---")
-result = parser.eval_statement(ast)
-print("--- Переменные ---\n", parser.variables)
+result = executor.eval_statement(ast, {})
